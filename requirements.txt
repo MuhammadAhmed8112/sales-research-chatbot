@@ -1,6 +1,5 @@
 streamlit==1.45.1
-langchain-core==0.3.58
-langchain-groq==0.3.2
-langgraph==0.4.5
-tavily-python==0.5.1
-python-dotenv==1.1.0
+langchain-groq
+langgraph
+tavily-python
+python-dotenv
