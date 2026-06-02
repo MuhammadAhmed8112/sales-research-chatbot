@@ -22,28 +22,26 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 /* ── Hide Streamlit chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton, [data-testid="stToolbar"] { display: none !important; }
-.block-container { padding-top: 0 !important; padding-bottom: 90px !important; }
+.block-container { padding-top: 1rem !important; padding-bottom: 100px !important; }
 
 /* ── Page background ── */
 .stApp { background: #080808; }
 
-/* ── Top header ── */
+/* ── Header ── */
 .app-header {
-    background: #0a0a0a;
-    border-bottom: 2px solid #7f1d1d;
-    padding: 16px 28px;
-    margin: -4px -4px 24px -4px;
+    background: #0d0d0d;
+    border-bottom: 2px solid #9b1c1c;
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
     gap: 14px;
-    box-shadow: 0 4px 24px rgba(185,28,28,0.15);
+    box-shadow: 0 2px 20px rgba(185,28,28,0.2);
 }
-.app-header-icon {
-    font-size: 2em;
-    filter: drop-shadow(0 0 10px #b91c1c99);
-}
+.app-header-icon { font-size: 2em; filter: drop-shadow(0 0 8px #b91c1c88); }
 .app-header-title {
-    font-size: 1.45em;
+    font-size: 1.4em;
     font-weight: 800;
     background: linear-gradient(135deg, #ffffff 0%, #fca5a5 60%, #b91c1c 100%);
     -webkit-background-clip: text;
@@ -51,7 +49,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     background-clip: text;
     margin: 0; line-height: 1.2;
 }
-.app-header-sub { font-size: 0.78em; color: #52525b; margin: 2px 0 0 0; }
+.app-header-sub { font-size: 0.78em; color: #52525b; margin: 3px 0 0 0; }
 
 /* ── Chat messages ── */
 [data-testid="stChatMessage"] {
@@ -60,27 +58,19 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     margin: 6px 0 !important;
 }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
-    background: linear-gradient(135deg, #1a0a0a 0%, #140808 100%) !important;
-    border: 1px solid #3f0f0f !important;
+    background: linear-gradient(135deg, #1a0808 0%, #140606 100%) !important;
+    border: 1px solid #450a0a !important;
 }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
     background: #0e0e0e !important;
     border: 1px solid #1c1c1c !important;
 }
 
-/* ── Chat input — fixed to bottom ── */
-[data-testid="stChatInput"] {
-    position: fixed !important;
-    bottom: 0 !important;
-    z-index: 9999 !important;
-    background: #080808 !important;
-    border-top: 1px solid #1c1c1c !important;
-    padding: 12px 16px 14px !important;
-}
+/* ── Chat input styling (let Streamlit handle positioning) ── */
 [data-testid="stChatInput"] > div {
     background: #111111 !important;
-    border: 1px solid #3f0f0f !important;
-    border-radius: 12px !important;
+    border: 1px solid #450a0a !important;
+    border-radius: 14px !important;
     transition: border-color 0.2s, box-shadow 0.2s !important;
 }
 [data-testid="stChatInput"] > div:focus-within {
@@ -206,9 +196,11 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 }
 
 /* ── Empty states ── */
-.empty-state { text-align: center; padding: 28px 16px 22px; }
-.empty-state-icon { font-size: 2.2em; opacity: 0.18; margin-bottom: 10px; }
-.empty-state-text { font-size: 0.81em; color: #3f3f46; line-height: 1.65; }
+.empty-state { text-align: center; padding: 60px 16px; }
+.empty-state-icon { font-size: 2.5em; opacity: 0.2; margin-bottom: 14px; }
+.empty-state-title { font-size: 0.95em; font-weight: 600; color: #52525b; margin-bottom: 8px; }
+.empty-state-text { font-size: 0.82em; color: #3f3f46; line-height: 1.75; }
+.empty-state-hint { color: #52525b; font-style: italic; }
 
 /* ── Panel heading ── */
 .panel-heading {
@@ -290,14 +282,12 @@ with col1:
     # Empty state
     if not st.session_state.messages:
         st.markdown("""
-<div style="text-align:center;padding:60px 24px;color:#27272a;">
-  <div style="font-size:3em;margin-bottom:16px;opacity:0.2">🔍</div>
-  <div style="font-size:1em;font-weight:600;color:#3f3f46;margin-bottom:8px;">
-    Start by describing a prospect
-  </div>
-  <div style="font-size:0.84em;color:#27272a;line-height:1.75;">
-    e.g. <span style="color:#52525b;font-style:italic;">"Acme Corp builds industrial IoT sensors for manufacturing plants"</span><br>
-    The agent will research them, score the lead, and draft a personalized email.
+<div class="empty-state">
+  <div class="empty-state-icon">🔍</div>
+  <div class="empty-state-title">Start by describing a prospect</div>
+  <div class="empty-state-text">
+    e.g. <span class="empty-state-hint">"Acme Corp builds industrial IoT sensors for manufacturing plants"</span><br><br>
+    The agent will research them, score the lead,<br>and draft a personalized outreach email.
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -307,7 +297,7 @@ with col1:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # Chat input (fixed to bottom via CSS)
+    # Chat input — Streamlit naturally pins this to the bottom
     if user_input := st.chat_input("Who's the prospect? e.g. 'Acme Corp — 50-person IoT company, open budget...'"):
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state.lc_messages.append(HumanMessage(content=user_input))
@@ -383,9 +373,9 @@ with col2:
     else:
         st.markdown("""
 <div class="panel-card">
-  <div class="empty-state">
-    <div class="empty-state-icon">📈</div>
-    <div class="empty-state-text">Lead score will appear here<br>after the prospect is qualified.</div>
+  <div style="text-align:center;padding:24px 8px;">
+    <div style="font-size:2em;opacity:0.15;margin-bottom:10px;">📈</div>
+    <div style="font-size:0.8em;color:#3f3f46;line-height:1.6;">Lead score will appear here<br>after the prospect is qualified.</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -413,9 +403,9 @@ with col2:
     else:
         st.markdown("""
 <div class="panel-card">
-  <div class="empty-state">
-    <div class="empty-state-icon">✉️</div>
-    <div class="empty-state-text">Personalized outreach email will appear<br>once the lead is qualified.</div>
+  <div style="text-align:center;padding:24px 8px;">
+    <div style="font-size:2em;opacity:0.15;margin-bottom:10px;">✉️</div>
+    <div style="font-size:0.8em;color:#3f3f46;line-height:1.6;">Personalized outreach email will appear<br>once the lead is qualified.</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
