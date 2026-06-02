@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import os
 import json
 from dotenv import load_dotenv
@@ -22,7 +23,19 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 /* ── Hide Streamlit chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton, [data-testid="stToolbar"] { display: none !important; }
-.block-container { padding-top: 1rem !important; padding-bottom: 100px !important; }
+.block-container { padding-top: 1rem !important; padding-bottom: 110px !important; }
+
+/* ── Chat input — fixed full-width at bottom ── */
+[data-testid="stChatInput"] {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    background: #080808 !important;
+    border-top: 1px solid #1c1c1c !important;
+    padding: 12px 2rem 16px !important;
+}
 
 /* ── Page background ── */
 .stApp { background: #080808; }
@@ -296,6 +309,15 @@ with col1:
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
+
+    # Auto-scroll to bottom when new messages arrive
+    components.html("""
+        <script>
+            window.parent.document.querySelector(
+                '[data-testid="stAppViewContainer"] section.main'
+            ).scrollTo({ top: 999999, behavior: 'smooth' });
+        </script>
+    """, height=0)
 
     # Chat input at the bottom
     if user_input := st.chat_input("Who's the prospect? e.g. 'Acme Corp — 50-person IoT company, open budget...'"):
