@@ -292,46 +292,43 @@ with col1:
 </div>
 """, unsafe_allow_html=True)
 
-    # Chat history
+    # Chat history — always above the input
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # Chat input — Streamlit naturally pins this to the bottom
+    # Chat input at the bottom
     if user_input := st.chat_input("Who's the prospect? e.g. 'Acme Corp — 50-person IoT company, open budget...'"):
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state.lc_messages.append(HumanMessage(content=user_input))
 
-        with st.chat_message("user"):
-            st.markdown(user_input)
+        with st.spinner("Researching prospect..."):
+            result = st.session_state.agent.invoke(
+                {"messages": st.session_state.lc_messages}
+            )
 
-        with st.chat_message("assistant"):
-            with st.spinner("Researching prospect..."):
-                result = st.session_state.agent.invoke(
-                    {"messages": st.session_state.lc_messages}
-                )
+            ai_msgs = [
+                m for m in result["messages"]
+                if hasattr(m, "type") and m.type == "ai" and m.content
+            ]
+            response_text = ai_msgs[-1].content if ai_msgs else "Could not process that. Please try again."
 
-                ai_msgs = [
-                    m for m in result["messages"]
-                    if hasattr(m, "type") and m.type == "ai" and m.content
-                ]
-                response_text = ai_msgs[-1].content if ai_msgs else "Could not process that. Please try again."
+            for m in result["messages"]:
+                if hasattr(m, "type") and m.type == "tool":
+                    tool_name = getattr(m, "name", "")
+                    if tool_name == "score_lead":
+                        try:
+                            raw = m.content.strip().lstrip("```json").lstrip("```").rstrip("```")
+                            st.session_state.lead_score = json.loads(raw)
+                        except Exception:
+                            pass
+                    elif tool_name == "generate_outreach_email":
+                        st.session_state.email_draft = m.content
 
-                for m in result["messages"]:
-                    if hasattr(m, "type") and m.type == "tool":
-                        tool_name = getattr(m, "name", "")
-                        if tool_name == "score_lead":
-                            try:
-                                raw = m.content.strip().lstrip("```json").lstrip("```").rstrip("```")
-                                st.session_state.lead_score = json.loads(raw)
-                            except Exception:
-                                pass
-                        elif tool_name == "generate_outreach_email":
-                            st.session_state.email_draft = m.content
+            st.session_state.lc_messages = result["messages"]
+            st.session_state.messages.append({"role": "assistant", "content": response_text})
 
-                st.session_state.lc_messages = result["messages"]
-                st.markdown(response_text)
-                st.session_state.messages.append({"role": "assistant", "content": response_text})
+        st.rerun()  # Re-render so messages appear above the input
 
 # ── Right panel ───────────────────────────────────────────────────────────────
 with col2:
